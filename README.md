@@ -34,3 +34,28 @@ Validator<String> email = new EmailValidator();
 Eredmeny eredmeny = email.ellenoriz("lili@example.com");
 
 System.out.println(eredmeny.ervenyes());
+
+
+Example 2: Combine validators
+Validator<String> emailOrPhone =
+        new EmailValidator().vagy(new TelefonszamValidator());
+
+Eredmeny eredmeny = emailOrPhone.ellenoriz("+40 745 123 456");
+
+
+Example 3: Validate a complete form
+UrlapValidator form = new UrlapValidator()
+        .mezo("email", new EmailValidator())
+        .mezo("phone", new TelefonszamValidator())
+        .mezo("password", new JelszoValidator());
+
+Map<String, String> values = new HashMap<>();
+values.put("email", "lili@example.com");
+values.put("phone", "0745 123 456");
+values.put("password", "Tulipan#2024");
+
+UrlapEredmeny result = form.ellenoriz(values);
+
+if (!result.ervenyes()) {
+    result.osszesHiba().forEach(System.out::println);
+}
