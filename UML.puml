@@ -1,0 +1,74 @@
+
+@startuml
+title Validator Library - Strategy Pattern
+
+skinparam classAttributeIconSize 0
+
+interface "Validator<T>" as Validator {
+    + ellenoriz(ertek: T): Eredmeny
+    + es(masik: Validator<T>): Validator<T>
+    + vagy(masik: Validator<T>): Validator<T>
+    + uzenettel(uzenet: String): Validator<T>
+}
+
+class Eredmeny <<record>> {
+    + ervenyes: boolean
+    + hibak: List<String>
+    + ok(): Eredmeny
+    + hiba(uzenetek: String...): Eredmeny
+    + osszefuz(masik: Eredmeny): Eredmeny
+}
+
+abstract class RegexValidator {
+    - minta: Pattern
+    - hibauzenet: String
+    + ellenoriz(ertek: String): Eredmeny
+}
+
+class EmailValidator
+class TelefonszamValidator
+class RendszamValidator
+class IranyitoszamValidator
+class JelszoValidator
+
+class UrlapValidator {
+    - mezok: Map<String, Validator<String>>
+    + mezo(mezonev: String, validator: Validator<String>): UrlapValidator
+    + ellenoriz(urlap: Map<String, String>): UrlapEredmeny
+}
+
+class UrlapEredmeny <<record>> {
+    + mezoHibak: Map<String, List<String>>
+    + ervenyes(): boolean
+    + hibak(mezonev: String): List<String>
+    + osszesHiba(): List<String>
+}
+
+class RegisztracioDemo {
+    + main(args: String[]): void
+}
+
+Validator <|.. RegexValidator
+Validator <|.. JelszoValidator
+
+RegexValidator <|-- EmailValidator
+RegexValidator <|-- TelefonszamValidator
+RegexValidator <|-- RendszamValidator
+RegexValidator <|-- IranyitoszamValidator
+
+Validator ..> Eredmeny : returns
+RegexValidator ..> Eredmeny : creates
+JelszoValidator ..> Eredmeny : creates
+
+UrlapValidator o-- "0..*" Validator : strategies
+UrlapValidator ..> UrlapEredmeny : creates
+UrlapEredmeny ..> Eredmeny : collects errors
+RegisztracioDemo ..> UrlapValidator : uses
+
+note right of Validator
+  Strategy interface.
+  Different rules can be
+  substituted or combined.
+end note
+
+@enduml
